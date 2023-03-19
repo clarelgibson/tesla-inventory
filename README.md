@@ -19,3 +19,6 @@ The data for this project is scraped from the [Tesla UK Model 3 inventory of use
 
 8. From this you can create a query string for an API call in R, by pasting together the **authority**, which is `www.tesla.com` and the **path**, which is `/inventory/api/v1/inventory-results?query=%7B%22query%22%...` (you should paste all the way to the end of the path string).
 9. This string will now become your `url` variable in the `getData.R` script.
+
+## Attributes
+<div> Icons made by <a href="https://www.flaticon.com/authors/vitaly-gorbachev" title="Vitaly Gorbachev"> Vitaly Gorbachev </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
