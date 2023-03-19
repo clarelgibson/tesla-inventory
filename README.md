@@ -17,7 +17,7 @@
 <h3 align="center">Tesla Model 3 Inventory</h3>
 
   <p align="center">
-    An interactive dashboard to show current state of the UK inventory of Tesla Model 3 used vehicles, according to [Tesla's website](https://www.tesla.com).
+    An interactive dashboard to show current state of the UK inventory of Tesla Model 3 used vehicles, according to <a href="https://www.tesla.com">Tesla's website</a>.
     <br />
     <a href="https://github.com/clarelgibson/tesla-inventory"><strong>Explore the docs »</strong></a>
     <br />
