@@ -1,5 +1,61 @@
-# Tesla Inventory
-Exploratory analysis of Tesla inventory in the UK
+<div id="top"></div>
+<!--
+*** Thanks for checking out the Best-README-Template. If you have a suggestion
+*** that would make this better, please fork the repo and create a pull request
+*** or simply open an issue with the tag "enhancement".
+*** Don't forget to give the project a star!
+*** Thanks again! Now go create something AMAZING! :D
+-->
+
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="https://github.com/clarelgibson/tesla-inventory">
+    <img src="./assets/img/tesla.png" alt="Tesla-style logo in website theme colours" height="80">
+  </a>
+
+<h3 align="center">Tesla Model 3 Inventory</h3>
+
+  <p align="center">
+    An interactive dashboard to show current state of the UK inventory of Tesla Model 3 used vehicles, according to [Tesla's website](https://www.tesla.com).
+    <br />
+    <a href="https://github.com/clarelgibson/tesla-inventory"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    <a href="https://public.tableau.com/views/2022SchoolAdmissionsDashboard/2022SchoolAdmissionsDashboard?:language=en-US&:display_count=n&:origin=viz_share_link">View Dashboard</a> <!-- LINK TO BE UPDATED WHEN DASHBOARD PUBLISHED -->
+    ·
+    <a href="https://github.com/clarelgibson/tesla-inventory/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/clarelgibson/tesla-inventory/issues">Request Feature</a>
+  </p>
+</div>
+
+
+
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#setup">Setup</a></li>
+      </ul>
+    </li>
+    <li><a href="#attributes">Attributes</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
+  </ol>
+</details>
+
+<!-- ABOUT THE PROJECT -->
+## About The Project
+
+<!-- [![Product Name Screen Shot][product-screenshot]](https://example.com) -->
+
+Exploratory analysis of Tesla inventory in the UK.
 
 ## Setup
 The data for this project is scraped from the [Tesla UK Model 3 inventory of used cars](https://www.tesla.com/en_GB/inventory/used/m3). To scrape the inventory data into an R dataframe, I carried out the steps below. I used Safari for this exercise. I'm sure that the same actions can be taken in other browsers, however, I don't have experience with doing this in other browsers.
