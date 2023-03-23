@@ -12,7 +12,7 @@ library(lubridate)
 library(purrr)
 library(tidyr)
 
-source("getData.R")
+source("getData2.R")
 
 # COMBINE MULTIPLE API REQUESTS AND CLEAN ######################################
 files <- list.files(path = "./data/tmp",
