@@ -14,6 +14,7 @@ library(dplyr)
 library(readr)
 library(janitor)
 library(glue)
+library(stringr)
 
 # GET DATA FROM API ############################################################
 api <- "https://www.tesla.com/inventory/api/v1/inventory-results"
