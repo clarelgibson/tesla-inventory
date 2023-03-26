@@ -7,7 +7,6 @@
 # This script cleans and prepares data needed for Tesla Inventory project
 
 # SETUP ########################################################################
-library(stringr)
 library(lubridate)
 library(purrr)
 library(tidyr)
