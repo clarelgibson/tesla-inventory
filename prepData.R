@@ -82,6 +82,11 @@ inventory <- inventory %>%
   ))
 
 # EXPORT TO CSV ################################################################
+dir.create(
+  file.path("data", "cln"),
+  recursive = TRUE
+)
+
 write_csv(inventory,
           file = "./data/cln/inventory.csv",
           na = "")
