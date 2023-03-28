@@ -53,6 +53,6 @@ jobs:
 
       - name: Check
         run: |
-          install.packages("rcmdcheck")
+          install.packages(c("cli", "rcmdcheck"))
           rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error")
         shell: Rscript {0}
