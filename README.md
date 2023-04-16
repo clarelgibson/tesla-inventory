@@ -1,63 +1,10 @@
-<div id="top"></div>
-<!--
-*** Thanks for checking out the Best-README-Template. If you have a suggestion
-*** that would make this better, please fork the repo and create a pull request
-*** or simply open an issue with the tag "enhancement".
-*** Don't forget to give the project a star!
-*** Thanks again! Now go create something AMAZING! :D
--->
-
-<!-- PROJECT LOGO -->
-<br />
-<div align="center">
-  <a href="https://github.com/clarelgibson/tesla-inventory">
-    <img src="./assets/img/tesla.png" alt="Tesla-style logo in website theme colours" height="80">
-  </a>
-
-<h3 align="center">Tesla Model 3 Inventory</h3>
-
-  <p align="center">
-    An interactive dashboard to show current UK inventory of Tesla Model 3 used vehicles, according to <a href="https://www.tesla.com/en_GB/inventory/used/m3">Tesla</a>.
-    <br />
-    <a href="https://github.com/clarelgibson/tesla-inventory"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="https://public.tableau.com/views/2022SchoolAdmissionsDashboard/2022SchoolAdmissionsDashboard?:language=en-US&:display_count=n&:origin=viz_share_link">View Dashboard</a> <!-- LINK TO BE UPDATED WHEN DASHBOARD PUBLISHED -->
-    ·
-    <a href="https://github.com/clarelgibson/tesla-inventory/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/clarelgibson/tesla-inventory/issues">Request Feature</a>
-  </p>
-</div>
-
-
-
-<!-- TABLE OF CONTENTS -->
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#setup">Setup</a></li>
-      </ul>
-    </li>
-    <li><a href="#attributes">Attributes</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
-  </ol>
-</details>
-
-<!-- ABOUT THE PROJECT -->
-## About The Project
-
-<!-- [![Product Name Screen Shot][product-screenshot]](https://example.com) -->
-
+# Tesla Inventory
 Exploratory analysis of Tesla inventory in the UK.
 
-## Setup
+## Description
+
+## Getting Started
+### Data
 The data for this project is scraped from the [Tesla UK Model 3 inventory of used cars](https://www.tesla.com/en_GB/inventory/used/m3). To scrape the inventory data into an R dataframe, I carried out the steps below. I used Safari for this exercise. I'm sure that the same actions can be taken in other browsers, however, I don't have experience with doing this in other browsers.
 
 1. In Safari, navigate to the [Tesla inventory page for Model 3](https://www.tesla.com/en_GB/inventory/used/m3).
@@ -76,6 +23,14 @@ The data for this project is scraped from the [Tesla UK Model 3 inventory of use
 8. From this you can create a query string for an API call in R, by pasting together the **authority**, which is `www.tesla.com` and the **path**, which is `/inventory/api/v1/inventory-results?query=%7B%22query%22%...` (you should paste all the way to the end of the path string).
 9. This string will now become your `url` variable in the `getData.R` script.
 
-## Attributes
-<div> Icons made by <a href="https://www.flaticon.com/authors/vitaly-gorbachev" title="Vitaly Gorbachev"> Vitaly Gorbachev </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
-<a href="https://www.flaticon.com/free-icons/rate" title="rate icons">Rate icons created by dmitri13 - Flaticon</a>
+## Authors
+
+- [Clare Gibson](https://www.surreydatagirl.com) - [surreydatagirl@gmail.com](mailto:surreydatagirl.com)
+- [Alan Gibson](https://github.com/a-gibson)
+
+## Licence
+This project is licensed under the MIT licence. See the [LICENSE](./LICENSE) file for details.
+
+## Acknowledgements
+
+- [Tesla UK inventory of used Model 3 cars](https://www.tesla.com/en_GB/inventory/used/m3?arrangeby=plh&zip=GU9)
