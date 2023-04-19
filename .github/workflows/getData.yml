@@ -48,7 +48,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Generate data
-        run: source("getData.R")
+        run: source("prepData.R")
         shell: Rscript {0}
 
       - name: Check
