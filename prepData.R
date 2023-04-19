@@ -11,8 +11,18 @@
 source("utils.R")
 
 # > Variables ==================================================================
-cache_dir <- "./data/tmp"
-clean_dir <- "./data/cln"
+cache_dir <- file.path("data", "tmp")
+clean_dir <- file.path("data", "cln")
+
+dir.create(
+  cache_dir,
+  recursive = TRUE
+)
+
+dir.create(
+  clean_dir,
+  recursive = TRUE
+)
 
 # GET DATA FROM API ############################################################
 queries <- list(
