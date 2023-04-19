@@ -1,87 +1,52 @@
 # Title:        Prep Data
 # Project:      Tesla Inventory
 # Author:       Clare Gibson
-# Date Created: 2023-03-13
+# Date Created: 2023-03-23
 
 # SUMMARY ######################################################################
-# This script cleans and prepares data needed for Tesla Inventory project
+# This script reads data needed for Tesla Inventory project
 
 # SETUP ########################################################################
-library(lubridate)
-library(purrr)
-library(tidyr)
+# > Scripts ====================================================================
+source("utils.R")
 
-source("getData.R")
+# > Variables ==================================================================
+cache_dir <- file.path("data", "tmp")
+clean_dir <- file.path("data", "cln")
+
+dir.create(
+  cache_dir,
+  recursive = TRUE
+)
+
+dir.create(
+  clean_dir,
+  recursive = TRUE
+)
+
+# GET DATA FROM API ############################################################
+queries <- list(
+  df_pa = get_tesla_data(),                       # price ascending
+  df_pd = get_tesla_data(order = "desc"),         # price descending
+  df_ya = get_tesla_data(arrangeby = "Year"),     # year ascending
+  df_yd = get_tesla_data(arrangeby = "Year",
+                          order = "desc"),        # year descending
+  df_ma = get_tesla_data(arrangeby = "Mileage"),  # mileage ascending
+  df_md = get_tesla_data(arrangeby = "Mileage",
+                          order = "desc")         # mileage descending 
+)
+
+# BIND ALL API CALLS ###########################################################
+df <- bind_tesla_data(queries)
+
+# WRITE TO TEMP CSV ############################################################
+cache_tesla_data(data = df,
+                 dir = cache_dir)
 
 # COMBINE MULTIPLE API REQUESTS AND CLEAN ######################################
-files <- list.files(path = "./data/tmp",
-                    full.names = TRUE)
+inventory.src <- stack_tesla_data(cache_dir)
+inventory <- clean_tesla_data(inventory.src)
 
-inventory <- do.call(bind_rows, lapply(files, read_csv))
-
-inventory <- inventory %>%
-  select(api_request_date = request_time,
-         vin,
-         registration_plate = registration_details_license_plate_number,
-         first_registration_date,
-         trim_code = trim,
-         original_delivery_date,
-         year,
-         odometer,
-         price,
-         inventory_price,
-         purchase_price,
-         total_price,
-         on_configurator_price_percentage,
-         acquisition_type,
-         vehicle_history,
-         title_status,
-         city,
-         cpo_refurbishment_status,
-         has_damage_photos,
-         paint,
-         interior,
-         wheels,
-         warranty_battery_exp_date,
-         warranty_vehicle_exp_date,
-         warranty_drive_unit_exp_date,
-         is_at_location,
-         trt_name,
-         vrl_name
-  ) %>% 
-  mutate(
-    across(
-      c(first_registration_date,
-        original_delivery_date,
-        warranty_battery_exp_date,
-        warranty_drive_unit_exp_date,
-        warranty_vehicle_exp_date),
-      as_date
-    )
-  ) %>% 
-  mutate(trim_name = case_when(
-    trim_code == "PAWD" ~ "Performance",
-    trim_code == "LRAWD" ~ "Long Range",
-    trim_code == "M3RWD" ~ "Rear-Wheel Drive"
-  )) %>% 
-  mutate(vehicle_birthdate = coalesce(first_registration_date,
-                                      original_delivery_date),
-         vehicle_age_months = interval(vehicle_birthdate,
-                                       today()) %/% months(1)) %>% 
-  mutate(first_report_date = min(api_request_date),
-         last_report_date = max(api_request_date)) %>% 
-  group_by(vin) %>% 
-  mutate(vehicle_first_report_date = min(api_request_date),
-         vehicle_last_report_date = max(api_request_date)) %>% 
-  slice_max(api_request_date) %>% 
-  ungroup() %>% 
-  mutate(is_current_inventory = if_else(
-    vehicle_last_report_date < last_report_date,
-    FALSE,
-    TRUE
-  ))
-
-# EXPORT TO CSV ################################################################
-write_csv(inventory,
-          file = "./data/cln/inventory.csv",
-          na = "")
+# WRITE TO CLEAN CSV ###########################################################
+write_tesla_data(data = inventory,
+                 dir = clean_dir)
