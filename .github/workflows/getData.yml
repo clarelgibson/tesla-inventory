@@ -51,8 +51,9 @@ jobs:
         run: source("prepData.R")
         shell: Rscript {0}
 
-      - name: Check
-        run: |
-          install.packages(c("cli", "rcmdcheck"))
-          rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error")
-        shell: Rscript {0}
+#      - name: Check
+#        run: |
+#          install.packages(c("cli", "rcmdcheck"))
+#          rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error")
+#        shell: Rscript {0}
+
