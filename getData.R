@@ -302,11 +302,6 @@ df <- df_pa %>%
   distinct()
 
 # WRITE TO TEMP CSV ############################################################
-dir.create(
-  file.path("data", "tmp"),
-  recursive = TRUE
-)
-
 write_csv(
   x = df,
   file = paste0("./data/tmp/m3-",
