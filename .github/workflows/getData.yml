@@ -15,10 +15,13 @@ jobs:
   generate-data:
     runs-on: ubuntu-latest
 
+    env:
+      RENV_PATHS_ROOT: ~/.local/share/renv
+      RENV_VERSION: "0.16.0"
+
     strategy:
       matrix:
-        r-version: ['4.2.1']
-        renv-version: ['0.16.0']
+        r-version: ["4.2.1"]
 
     steps:
       - uses: actions/checkout@v3
@@ -35,18 +38,18 @@ jobs:
         id: cache-renv
         uses: actions/cache@v3
         with:
-          path: renv/library
+          path: ${{ env.RENV_PATHS_ROOT }}
           key: ${{ runner.os }}-${{ matrix.r-version }}-${{ hashFiles('**/renv.lock') }}
 
       # Use renv to manage package installation
       - name: Install and activate renv
         run: |
-          install.packages("renv@${{ matrix.renv-version }}")
+          install.packages("renv@${{ env.RENV_VERSION }}")
           renv::activate()
         shell: Rscript {0}
 
       # Will automatically look for renv.lock in the root of the project
-      - if: ${{ steps.cache-renv.outputs.cache-hit != 'true' }}
+      - if: ${{ steps.cache-renv.outputs.cache-hit != 'true' }} # if cache works may not need this if test
         name: Install dependencies
         run: renv::restore()
         shell: Rscript {0}
