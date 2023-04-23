@@ -27,22 +27,26 @@ jobs:
         with:
           r-version: ${{ matrix.r-version }}
 
+      - name: Install cURL library
+        run: sudo apt-get install -y libcurl4-openssl-dev
+
+      - name: renv package cache
+        id: cache-renv
+        uses: actions/cache@v3
+        with:
+          # path: ~/.local/share/renv
+          path: renv/library
+          key: ${{ runner.os }}-${{ matrix.r-version }}-${{ hashFiles('**/renv.lock') }}
+          # restore-keys: ${{ runner.os }}-${{ matrix.r-version }}-
+
+      # Use renv to manage package installation
       - name: Install and activate renv
         run: |
           install.packages("renv")
           renv::activate()
         shell: Rscript {0}
 
-      - name: Restore Renv package cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.local/share/renv
-          key: ${{ runner.os }}-${{ matrix.r-version }}-${{ hashFiles('**/renv.lock') }}
-          restore-keys: ${{ runner.os }}-${{ matrix.r-version }}-
-
-      - name: Install cURL library
-        run: sudo apt-get install -y libcurl4-openssl-dev
-
+      # Will automatically look for renv.lock in the root of the project
       - name: Install dependencies
         run: renv::restore()
         shell: Rscript {0}
@@ -56,4 +60,3 @@ jobs:
 #          install.packages(c("cli", "rcmdcheck"))
 #          rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error")
 #        shell: Rscript {0}
-
