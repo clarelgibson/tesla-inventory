@@ -193,3 +193,31 @@ write_tesla_data <- function(data, dir, file = "/inventory.csv") {
     na = ""
   )
 }
+
+# EXPORT TO GOOGLESHEETS #######################################################
+# Takes as input the clean Tesla data and exports it to Google Drive as a 
+# Google Sheet document.
+write_tesla_sheet <- function(data, dir, file = "inventory") {
+  require(googledrive)
+  require(googlesheets4)
+  
+  drive_auth()
+  gs4_auth(token = drive_token())
+  
+  gdrive_id <- drive_find(
+    n_max = 1,
+    pattern = dir
+  )$id
+  
+  gs4_create(
+    name = paste0(dir,"-tmp"),
+    sheets = data
+  )
+  
+  drive_mv(
+    file = paste0(dir,"-tmp"),
+    path = as_id(gdrive_id),
+    name = file,
+    overwrite = TRUE
+  )
+}
