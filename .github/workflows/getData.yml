@@ -49,8 +49,7 @@ jobs:
         shell: Rscript {0}
 
       # Will automatically look for renv.lock in the root of the project
-      - if: ${{ steps.cache-renv.outputs.cache-hit != 'true' }} # if cache works may not need this if test
-        name: Install dependencies
+      - name: Install dependencies
         run: renv::restore()
         shell: Rscript {0}
 
