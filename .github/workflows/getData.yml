@@ -34,10 +34,8 @@ jobs:
         id: cache-renv
         uses: actions/cache@v3
         with:
-          # path: ~/.local/share/renv
           path: renv/library
           key: ${{ runner.os }}-${{ matrix.r-version }}-${{ hashFiles('**/renv.lock') }}
-          # restore-keys: ${{ runner.os }}-${{ matrix.r-version }}-
 
       # Use renv to manage package installation
       - name: Install and activate renv
