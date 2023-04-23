@@ -12,17 +12,19 @@ source("utils.R")
 
 # > Variables ==================================================================
 cache_dir <- file.path("data", "tmp")
-clean_dir <- file.path("data", "cln")
+#clean_dir <- file.path("data", "cln")
+gdrive_dir <- "tesla-inventory"
 
+# > Storage ====================================================================
 dir.create(
   cache_dir,
   recursive = TRUE
 )
 
-dir.create(
-  clean_dir,
-  recursive = TRUE
-)
+# dir.create(
+#   clean_dir,
+#   recursive = TRUE
+# )
 
 # GET DATA FROM API ############################################################
 queries <- list(
@@ -48,5 +50,9 @@ inventory.src <- stack_tesla_data(cache_dir)
 inventory <- clean_tesla_data(inventory.src)
 
 # WRITE TO CLEAN CSV ###########################################################
-write_tesla_data(data = inventory,
-                 dir = clean_dir)
+# write_tesla_data(data = inventory,
+#                  dir = clean_dir)
+
+# WRITE TO GOOGLE SHEETS #######################################################
+write_tesla_sheet(data = inventory,
+                  dir = gdrive_dir)
