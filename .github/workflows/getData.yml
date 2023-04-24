@@ -2,7 +2,7 @@ name: getData
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "**" ]
   pull_request:
     branches: [ "main" ]
   schedule:
@@ -15,9 +15,13 @@ jobs:
   generate-data:
     runs-on: ubuntu-latest
 
+    env:
+      RENV_PATHS_ROOT: ~/.local/share/renv
+      RENV_VERSION: "0.17.3"
+
     strategy:
       matrix:
-        r-version: ['4.2.1']
+        r-version: ["4.2.1"]
 
     steps:
       - uses: actions/checkout@v3
@@ -27,22 +31,24 @@ jobs:
         with:
           r-version: ${{ matrix.r-version }}
 
-      - name: Install and activate renv
-        run: |
-          install.packages("renv")
-          renv::activate()
-        shell: Rscript {0}
-
-      - name: Restore Renv package cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.local/share/renv
-          key: ${{ runner.os }}-${{ matrix.r-version }}-${{ hashFiles('**/renv.lock') }}
-          restore-keys: ${{ runner.os }}-${{ matrix.r-version }}-
-
       - name: Install cURL library
         run: sudo apt-get install -y libcurl4-openssl-dev
 
+      - name: renv package cache
+        id: cache-renv
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.RENV_PATHS_ROOT }}
+          key: ${{ runner.os }}-${{ matrix.r-version }}-${{ hashFiles('**/renv.lock') }}
+
+      # Use renv to manage package installation
+      - name: Install and activate renv
+        run: |
+          install.packages("renv@${{ env.RENV_VERSION }}")
+          renv::activate()
+        shell: Rscript {0}
+
+      # Will automatically look for renv.lock in the root of the project
       - name: Install dependencies
         run: renv::restore()
         shell: Rscript {0}
@@ -56,4 +62,3 @@ jobs:
 #          install.packages(c("cli", "rcmdcheck"))
 #          rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error")
 #        shell: Rscript {0}
-
