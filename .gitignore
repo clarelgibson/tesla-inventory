@@ -48,5 +48,8 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 
+# Mac files
+.DS_Store
+
 # Script temp files
 data/
