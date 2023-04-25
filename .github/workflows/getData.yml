@@ -55,7 +55,7 @@ jobs:
 
       - name: Generate data
         run: source("prepData.R")
-        shell: Rscript {0}
+        shell: Rscript {0} --batch
 
 #      - name: Check
 #        run: |
