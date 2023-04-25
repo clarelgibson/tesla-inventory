@@ -18,6 +18,7 @@ jobs:
     env:
       RENV_PATHS_ROOT: ~/.local/share/renv
       RENV_VERSION: "0.17.3"
+      SCRIPT_ARGS: "--batch"
 
     strategy:
       matrix:
@@ -54,8 +55,8 @@ jobs:
         shell: Rscript {0}
 
       - name: Generate data
-        run: source("prepData.R")
-        shell: Rscript {0} --batch
+        run: system(paste("Rscript", "prepData.R", "${{ env.SCRIPT_ARGS }}"))
+        shell: Rscript {0}
 
 #      - name: Check
 #        run: |
