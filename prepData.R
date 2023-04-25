@@ -25,6 +25,8 @@ parser$add_argument(
   help="No user prompting during execution"
 )
 
+args <- parser$parse_args()
+
 # > Variables ==================================================================
 cache_dir <- file.path("data", "tmp")
 clean_dir <- file.path("data", "cln")
