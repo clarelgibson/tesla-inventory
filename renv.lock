@@ -19,19 +19,6 @@
       ],
       "Hash": "470851b6d5d0ac559e9d01bb352b4021"
     },
-    "argparse": {
-      "Package": "argparse",
-      "Version": "2.2.2",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "R6",
-        "findpython",
-        "jsonlite"
-      ],
-      "Hash": "9007366fdc899126f43b174c46c43e39"
-    },
     "askpass": {
       "Package": "askpass",
       "Version": "1.1",
@@ -162,13 +149,6 @@
         "utils"
       ],
       "Hash": "1d9e7ad3c8312a192dea7d3db0274fde"
-    },
-    "findpython": {
-      "Package": "findpython",
-      "Version": "1.0.8",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "8f9aa3ce842296afaad4083b839481a1"
     },
     "fs": {
       "Package": "fs",
