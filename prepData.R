@@ -11,15 +11,15 @@
 source("utils.R")
 
 # > Variables ==================================================================
-cache_dir <- file.path("data", "tmp")
+#cache_dir <- file.path("data", "tmp")
 gdrive_dir <- "tesla-inventory"
 gdrive_sheet <- "inventory"
 
 # > Storage ====================================================================
-dir.create(
-  cache_dir,
-  recursive = TRUE
-)
+# dir.create(
+#   cache_dir,
+#   recursive = TRUE
+# )
 
 # GET DATA FROM API ############################################################
 queries <- list(
@@ -34,15 +34,15 @@ queries <- list(
 )
 
 # BIND ALL API CALLS ###########################################################
-df <- bind_tesla_data(queries)
+df <- bind_tesla_data(queries) %>% 
+  mutate(api_request_date = Sys.time())
 
-# WRITE TO TEMP CSV ############################################################
-cache_tesla_data(data = df,
-                 dir = cache_dir)
+# # WRITE TO TEMP CSV ##########################################################
+# cache_tesla_data(data = df,
+#                  dir = cache_dir)
 
-# COMBINE MULTIPLE API REQUESTS AND CLEAN ######################################
-inventory.src <- stack_tesla_data(cache_dir)
-inventory <- clean_tesla_data(inventory.src)
+# CLEAN DATA ###################################################################
+inventory <- clean_tesla_data(df)
 
 # EXPORT DATA TO GOOGLE DRIVE ##################################################
 # > Connect to Google ==========================================================
@@ -61,8 +61,8 @@ make_gdrive_sheet(
 gdrive_sheet_id <- as_dribble(gdrive_sheet)$id
 
 # > Append data into sheet =====================================================
-sheet_write(
-  data = df,
+sheet_append(
   ss = as_dribble(gdrive_sheet),
+  data = df,
   sheet = "Sheet1"
 )

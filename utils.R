@@ -71,44 +71,44 @@ get_tesla_data <- function(
     )
 }
 
-# BIND TESLA DATA ##############################################################
-# Takes as input a list of df and binds the results into a single df, removing
-# any duplicate rows and adding a timestamp.
-bind_tesla_data <- function(data) {
-  require(dplyr)
-  
-  df <- bind_rows(data) %>% 
-    distinct() %>% 
-    mutate(request_time = Sys.time())
-}
+# # BIND TESLA DATA ##############################################################
+# # Takes as input a list of df and binds the results into a single df, removing
+# # any duplicate rows and adding a timestamp.
+# bind_tesla_data <- function(data) {
+#   require(dplyr)
+#   
+#   df <- bind_rows(data) %>% 
+#     distinct() %>% 
+#     mutate(request_time = Sys.time())
+# }
 
-# CACHE TESLA DATA #############################################################
-# Takes as input a df and stores it in the defined cache location
-cache_tesla_data <- function(data, dir) {
-  require(readr)
-  require(stringr)
-  
-  file <- paste0("/m3-",
-                 str_replace_all(as.character(Sys.time()),"\\D",""),
-                 ".csv")
-  
-  write_csv(
-    x = data,
-    file = paste0(dir,file),
-    append = FALSE
-  )
-}
+# # CACHE TESLA DATA #############################################################
+# # Takes as input a df and stores it in the defined cache location
+# cache_tesla_data <- function(data, dir) {
+#   require(readr)
+#   require(stringr)
+#   
+#   file <- paste0("/m3-",
+#                  str_replace_all(as.character(Sys.time()),"\\D",""),
+#                  ".csv")
+#   
+#   write_csv(
+#     x = data,
+#     file = paste0(dir,file),
+#     append = FALSE
+#   )
+# }
 
-# STACK TESLA DATA #############################################################
-# Reads all df in the cache directory and binds into single df
-stack_tesla_data <- function(dir) {
-  require(readr)
-  
-  files <- list.files(path = dir,
-                      full.names = TRUE)
-  
-  df <- do.call(bind_rows, lapply(files, read_csv))
-}
+# # STACK TESLA DATA #############################################################
+# # Reads all df in the cache directory and binds into single df
+# stack_tesla_data <- function(dir) {
+#   require(readr)
+#   
+#   files <- list.files(path = dir,
+#                       full.names = TRUE)
+#   
+#   df <- do.call(bind_rows, lapply(files, read_csv))
+# }
 
 # CLEAN TESLA DATA #############################################################
 # Takes as input the source data from the cache directory and returns the same
@@ -118,7 +118,7 @@ clean_tesla_data <- function(data) {
   require(lubridate)
   
   df <- data %>%
-    select(api_request_date = request_time,
+    select(api_request_date,
            vin,
            registration_plate = registration_details_license_plate_number,
            first_registration_date,
@@ -165,34 +165,22 @@ clean_tesla_data <- function(data) {
     mutate(vehicle_birthdate = coalesce(first_registration_date,
                                         original_delivery_date),
            vehicle_age_months = interval(vehicle_birthdate,
-                                         today()) %/% months(1)) %>% 
-    mutate(first_report_date = min(api_request_date),
-           last_report_date = max(api_request_date)) %>% 
-    group_by(vin) %>% 
-    mutate(vehicle_first_report_date = min(api_request_date),
-           vehicle_last_report_date = max(api_request_date)) %>% 
-    slice_max(api_request_date) %>% 
-    ungroup() %>% 
-    mutate(is_current_inventory = if_else(
-      vehicle_last_report_date < last_report_date,
-      FALSE,
-      TRUE
-    ))
+                                         today()) %/% months(1))
 }
 
-# EXPORT TESLA DATA ############################################################
-# Takes as input the clean tesla data and exports it to the defined clean
-# location
-write_tesla_data <- function(data, dir, file = "/inventory.csv") {
-  require(readr)
-  
-  write_csv(
-    x = data,
-    file = paste0(dir,file),
-    append = FALSE,
-    na = ""
-  )
-}
+# # EXPORT TESLA DATA ############################################################
+# # Takes as input the clean tesla data and exports it to the defined clean
+# # location
+# write_tesla_data <- function(data, dir, file = "/inventory.csv") {
+#   require(readr)
+#   
+#   write_csv(
+#     x = data,
+#     file = paste0(dir,file),
+#     append = FALSE,
+#     na = ""
+#   )
+# }
 
 # GOOGLE AUTHENTICATION ########################################################
 # Function allows user to authenticate with Google Drive and Google Sheets
