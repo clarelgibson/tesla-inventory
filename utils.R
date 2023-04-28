@@ -194,30 +194,81 @@ write_tesla_data <- function(data, dir, file = "/inventory.csv") {
   )
 }
 
-# EXPORT TO GOOGLESHEETS #######################################################
-# Takes as input the clean Tesla data and exports it to Google Drive as a 
-# Google Sheet document.
-write_tesla_sheet <- function(data, dir, file = "inventory") {
+# GOOGLE AUTHENTICATION ########################################################
+# Function allows user to authenticate with Google Drive and Google Sheets
+google_auth <- function() {
   require(googledrive)
   require(googlesheets4)
   
-  drive_auth()
+  drive_auth(path = Sys.getenv("GOOGLE_AUTHENTICATION_CREDENTIALS"))
   gs4_auth(token = drive_token())
-  
-  gdrive_id <- drive_find(
-    n_max = 1,
-    pattern = dir
-  )$id
-  
-  gs4_create(
-    name = paste0(dir,"-tmp"),
-    sheets = data
-  )
-  
-  drive_mv(
-    file = paste0(dir,"-tmp"),
-    path = as_id(gdrive_id),
-    name = file,
-    overwrite = TRUE
-  )
 }
+
+# CREATE GOOGLE DIRECTORY ######################################################
+# Function creates a new directory for this project in Google Drive. Checks
+# first for presence of directory with specified name. If exists, does not 
+# create a new directory.
+make_gdrive_folder <- function(name) {
+  require(googledrive)
+  
+  # Check if folder already exists (0 = FALSE, >0 = TRUE)
+  dir_flg <- nrow(drive_find(name))
+  
+  if (dir_flg == 0) {
+    drive_mkdir(name) %>% 
+      drive_share_anyone()
+    cat("Folder", name, "created successfully.")
+  } else {
+    cat("Folder", name, "already exists. No need to recreate.")
+  }
+}
+
+# CREATE SHEET ###############################################################
+# Creates a new Google spreadsheet file for this project in Google Drive.
+# Checks first for presence of file with specified name. If exists, does not
+# create a new file.
+make_gdrive_sheet <- function(name, path) {
+  require(googledrive)
+  
+  # Check if file already exists (0 = FALSE, >0 = TRUE)
+  sheet_flg <- nrow(drive_find(name))
+  
+  if (sheet_flg == 0) {
+    drive_create(
+      name = name,
+      path = path,
+      type = "spreadsheet"
+    )
+    cat("Spreadsheet", name, "created successfully.")
+  } else {
+    cat("Spreadsheet", name, "already exists. No need to recreate.")
+  }
+}
+
+# EXPORT TO GOOGLESHEETS #######################################################
+# Takes as input the clean Tesla data and exports it to Google Drive as a 
+# Google Sheet document.
+# write_tesla_sheet <- function(data, dir, file = "inventory") {
+#   require(googledrive)
+#   require(googlesheets4)
+#   
+#   drive_auth(path = Sys.getenv("GOOGLE_AUTHENTICATION_CREDENTIALS"))
+#   gs4_auth(token = drive_token())
+#   
+#   gdrive_id <- drive_find(
+#     n_max = 1,
+#     pattern = dir
+#   )$id
+#   
+#   gs4_create(
+#     name = paste0(dir,"-tmp"),
+#     sheets = data
+#   )
+#   
+#   drive_mv(
+#     file = paste0(dir,"-tmp"),
+#     path = as_id(gdrive_id),
+#     name = file,
+#     overwrite = TRUE
+#   )
+# }

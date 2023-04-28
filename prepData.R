@@ -12,17 +12,12 @@ source("utils.R")
 
 # > Variables ==================================================================
 cache_dir <- file.path("data", "tmp")
-clean_dir <- file.path("data", "cln")
 gdrive_dir <- "tesla-inventory"
+gdrive_sheet <- "inventory"
 
 # > Storage ====================================================================
 dir.create(
   cache_dir,
-  recursive = TRUE
-)
-
-dir.create(
-  clean_dir,
   recursive = TRUE
 )
 
@@ -49,14 +44,25 @@ cache_tesla_data(data = df,
 inventory.src <- stack_tesla_data(cache_dir)
 inventory <- clean_tesla_data(inventory.src)
 
-# WRITE TO CLEAN CSV ###########################################################
+# EXPORT DATA TO GOOGLE DRIVE ##################################################
+# > Connect to Google ==========================================================
+google_auth()
 
-write_tesla_data(
-  data = inventory,
-  dir = clean_dir
+# > Make project folder ========================================================
+make_gdrive_folder(gdrive_dir)
+
+# > Make google sheet file =====================================================
+make_gdrive_sheet(
+  name = gdrive_sheet,
+  path = gdrive_dir
 )
 
-# write_tesla_sheet(
-#   data = inventory,
-#   dir = gdrive_dir
-# )
+# > Store id of new file =======================================================
+gdrive_sheet_id <- as_dribble(gdrive_sheet)$id
+
+# > Append data into sheet =====================================================
+sheet_write(
+  data = df,
+  ss = as_dribble(gdrive_sheet),
+  sheet = "Sheet1"
+)
