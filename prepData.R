@@ -7,25 +7,8 @@
 # This script reads data needed for Tesla Inventory project
 
 # SETUP ########################################################################
-# > Packages ===================================================================
-library(argparse)
-
 # > Scripts ====================================================================
 source("utils.R")
-
-# > Command Line Args ==========================================================
-parser <- ArgumentParser()
-
-parser$add_argument(
-  "-b",
-  "--batch",
-  action="store_true",
-  default=FALSE,
-  dest="batch",
-  help="No user prompting during execution"
-)
-
-args <- parser$parse_args()
 
 # > Variables ==================================================================
 cache_dir <- file.path("data", "tmp")
@@ -38,12 +21,10 @@ dir.create(
   recursive = TRUE
 )
 
-if ( args$batch ) {
-  dir.create(
-    clean_dir,
-    recursive = TRUE
-  )
-}
+dir.create(
+  clean_dir,
+  recursive = TRUE
+)
 
 # GET DATA FROM API ############################################################
 queries <- list(
@@ -70,14 +51,12 @@ inventory <- clean_tesla_data(inventory.src)
 
 # WRITE TO CLEAN CSV ###########################################################
 
-if ( args$batch ) {
-  write_tesla_data(
-    data = inventory,
-    dir = clean_dir
-  )
-} else {
-  write_tesla_sheet(
-    data = inventory,
-    dir = gdrive_dir
-  )
-}
+write_tesla_data(
+  data = inventory,
+  dir = clean_dir
+)
+
+# write_tesla_sheet(
+#   data = inventory,
+#   dir = gdrive_dir
+# )
