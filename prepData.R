@@ -7,19 +7,17 @@
 # This script reads data needed for Tesla Inventory project
 
 # SETUP ########################################################################
+# > Packages
+library(dplyr)
+library(googledrive)
+
 # > Scripts ====================================================================
 source("utils.R")
 
 # > Variables ==================================================================
-cache_dir <- file.path("data", "tmp")
 gdrive_dir <- "tesla-inventory"
 gdrive_sheet <- "inventory"
-
-# > Storage ====================================================================
-dir.create(
-  cache_dir,
-  recursive = TRUE
-)
+gcp_service_account <- "tpa-service-account@tableau-public-autorefresh.iam.gserviceaccount.com"
 
 # GET DATA FROM API ############################################################
 queries <- list(
@@ -34,35 +32,23 @@ queries <- list(
 )
 
 # BIND ALL API CALLS ###########################################################
-df <- bind_tesla_data(queries)
+df <- bind_tesla_data(queries) %>% 
+  mutate(api_request_date = Sys.time())
 
-# WRITE TO TEMP CSV ############################################################
-cache_tesla_data(data = df,
-                 dir = cache_dir)
-
-# COMBINE MULTIPLE API REQUESTS AND CLEAN ######################################
-inventory.src <- stack_tesla_data(cache_dir)
-inventory <- clean_tesla_data(inventory.src)
+# CLEAN DATA ###################################################################
+inventory <- clean_tesla_data(df)
 
 # EXPORT DATA TO GOOGLE DRIVE ##################################################
 # > Connect to Google ==========================================================
 google_auth()
 
 # > Make project folder ========================================================
-make_gdrive_folder(gdrive_dir)
+make_gdrive_folder(gdrive_dir,
+                   gcp_service_account)
 
 # > Make google sheet file =====================================================
 make_gdrive_sheet(
   name = gdrive_sheet,
-  path = gdrive_dir
-)
-
-# > Store id of new file =======================================================
-gdrive_sheet_id <- as_dribble(gdrive_sheet)$id
-
-# > Append data into sheet =====================================================
-sheet_write(
-  data = df,
-  ss = as_dribble(gdrive_sheet),
-  sheet = "Sheet1"
+  path = gdrive_dir,
+  df = inventory
 )

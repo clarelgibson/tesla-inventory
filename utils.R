@@ -76,38 +76,10 @@ get_tesla_data <- function(
 # any duplicate rows and adding a timestamp.
 bind_tesla_data <- function(data) {
   require(dplyr)
-  
-  df <- bind_rows(data) %>% 
-    distinct() %>% 
+
+  df <- bind_rows(data) %>%
+    distinct() %>%
     mutate(request_time = Sys.time())
-}
-
-# CACHE TESLA DATA #############################################################
-# Takes as input a df and stores it in the defined cache location
-cache_tesla_data <- function(data, dir) {
-  require(readr)
-  require(stringr)
-  
-  file <- paste0("/m3-",
-                 str_replace_all(as.character(Sys.time()),"\\D",""),
-                 ".csv")
-  
-  write_csv(
-    x = data,
-    file = paste0(dir,file),
-    append = FALSE
-  )
-}
-
-# STACK TESLA DATA #############################################################
-# Reads all df in the cache directory and binds into single df
-stack_tesla_data <- function(dir) {
-  require(readr)
-  
-  files <- list.files(path = dir,
-                      full.names = TRUE)
-  
-  df <- do.call(bind_rows, lapply(files, read_csv))
 }
 
 # CLEAN TESLA DATA #############################################################
@@ -118,7 +90,7 @@ clean_tesla_data <- function(data) {
   require(lubridate)
   
   df <- data %>%
-    select(api_request_date = request_time,
+    select(api_request_date,
            vin,
            registration_plate = registration_details_license_plate_number,
            first_registration_date,
@@ -165,33 +137,7 @@ clean_tesla_data <- function(data) {
     mutate(vehicle_birthdate = coalesce(first_registration_date,
                                         original_delivery_date),
            vehicle_age_months = interval(vehicle_birthdate,
-                                         today()) %/% months(1)) %>% 
-    mutate(first_report_date = min(api_request_date),
-           last_report_date = max(api_request_date)) %>% 
-    group_by(vin) %>% 
-    mutate(vehicle_first_report_date = min(api_request_date),
-           vehicle_last_report_date = max(api_request_date)) %>% 
-    slice_max(api_request_date) %>% 
-    ungroup() %>% 
-    mutate(is_current_inventory = if_else(
-      vehicle_last_report_date < last_report_date,
-      FALSE,
-      TRUE
-    ))
-}
-
-# EXPORT TESLA DATA ############################################################
-# Takes as input the clean tesla data and exports it to the defined clean
-# location
-write_tesla_data <- function(data, dir, file = "/inventory.csv") {
-  require(readr)
-  
-  write_csv(
-    x = data,
-    file = paste0(dir,file),
-    append = FALSE,
-    na = ""
-  )
+                                         today()) %/% months(1))
 }
 
 # GOOGLE AUTHENTICATION ########################################################
@@ -208,7 +154,7 @@ google_auth <- function() {
 # Function creates a new directory for this project in Google Drive. Checks
 # first for presence of directory with specified name. If exists, does not 
 # create a new directory.
-make_gdrive_folder <- function(name) {
+make_gdrive_folder <- function(name, gcp) {
   require(googledrive)
   
   # Check if folder already exists (0 = FALSE, >0 = TRUE)
@@ -216,59 +162,43 @@ make_gdrive_folder <- function(name) {
   
   if (dir_flg == 0) {
     drive_mkdir(name) %>% 
-      drive_share_anyone()
+      drive_share_anyone() %>% 
+      drive_share(
+        role = "writer",
+        type = "user",
+        emailAddress = gcp
+      )
     cat("Folder", name, "created successfully.")
   } else {
     cat("Folder", name, "already exists. No need to recreate.")
   }
 }
 
-# CREATE SHEET ###############################################################
-# Creates a new Google spreadsheet file for this project in Google Drive.
-# Checks first for presence of file with specified name. If exists, does not
-# create a new file.
-make_gdrive_sheet <- function(name, path) {
+# CREATE GOOGLE SHEET ##########################################################
+# Function creates a new sheet for this project in Google Drive. Checks
+# first for presence of sheet with specified name. If exists, does not 
+# create a new sheet
+make_gdrive_sheet <- function(name, path, df) {
   require(googledrive)
+  require(googlesheets4)
   
   # Check if file already exists (0 = FALSE, >0 = TRUE)
-  sheet_flg <- nrow(drive_find(name))
+  sheet_flg <- nrow(drive_ls(path))
   
   if (sheet_flg == 0) {
-    drive_create(
+    ss <- gs4_create(
       name = name,
-      path = path,
-      type = "spreadsheet"
-    )
+      sheets = list(Sheet1 = df[integer(), ])
+    ) %>% 
+    sheet_append(df) %>% 
+    drive_mv(path = path, name = name)
     cat("Spreadsheet", name, "created successfully.")
   } else {
+    sheet_append(
+      ss = as_dribble(name),
+      data = df,
+      sheet = "Sheet1"
+    )
     cat("Spreadsheet", name, "already exists. No need to recreate.")
   }
 }
-
-# EXPORT TO GOOGLESHEETS #######################################################
-# Takes as input the clean Tesla data and exports it to Google Drive as a 
-# Google Sheet document.
-# write_tesla_sheet <- function(data, dir, file = "inventory") {
-#   require(googledrive)
-#   require(googlesheets4)
-#   
-#   drive_auth(path = Sys.getenv("GOOGLE_AUTHENTICATION_CREDENTIALS"))
-#   gs4_auth(token = drive_token())
-#   
-#   gdrive_id <- drive_find(
-#     n_max = 1,
-#     pattern = dir
-#   )$id
-#   
-#   gs4_create(
-#     name = paste0(dir,"-tmp"),
-#     sheets = data
-#   )
-#   
-#   drive_mv(
-#     file = paste0(dir,"-tmp"),
-#     path = as_id(gdrive_id),
-#     name = file,
-#     overwrite = TRUE
-#   )
-# }
