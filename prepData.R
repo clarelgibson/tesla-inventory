@@ -16,6 +16,7 @@ source("utils.R")
 
 # > Variables ==================================================================
 gdrive_dir <- "tesla-inventory"
+gdrive_cache <- paste0(gdrive_dir,"/cache")
 gdrive_sheet <- "inventory"
 gcp_service_account <- "tpa-service-account@tableau-public-autorefresh.iam.gserviceaccount.com"
 
@@ -36,7 +37,7 @@ df <- bind_tesla_data(queries) %>%
   mutate(api_request_date = Sys.time())
 
 # CLEAN DATA ###################################################################
-inventory <- clean_tesla_data(df)
+df.cln <- clean_tesla_data(df)
 
 # EXPORT DATA TO GOOGLE DRIVE ##################################################
 # > Connect to Google ==========================================================
@@ -46,9 +47,47 @@ google_auth()
 make_gdrive_folder(gdrive_dir,
                    gcp_service_account)
 
-# > Make google sheet file =====================================================
-make_gdrive_sheet(
+# > Make cache folder ==========================================================
+make_gdrive_cache(gdrive_dir,
+                  gcp_service_account)
+
+# > Load df into Google Drive cache ============================================
+write_gdrive_cache(
   name = gdrive_sheet,
-  path = gdrive_dir,
-  df = inventory
+  path = gdrive_cache,
+  df = df.cln
+)
+
+# CLEAN INVENTORY ##############################################################
+gdrive_cache_ids <- drive_ls(gdrive_cache)$id
+
+inventory <-
+  gdrive_cache_ids %>% 
+  lapply(read_sheet) %>% 
+  bind_rows() %>% 
+  group_by(vin) %>%
+  mutate(inventory_start_date = min(api_request_date),
+         inventory_end_date = max(api_request_date)) %>%
+  slice_max(api_request_date) %>%
+  ungroup() %>%
+  mutate(is_current_inventory = if_else(
+    inventory_end_date == max(api_request_date),
+    "Current",
+    "Historical"
+  ))
+
+# ADD CLEAN INVENTORY TO GOOGLE DRIVE ##########################################
+# > Make sheet if required =====================================================
+make_gdrive_sheet(
+  name = "inventory",
+  path = gdrive_dir
+)
+
+# > Append data to inventory ===================================================
+inventory_id <- drive_ls(gdrive_dir, "inventory")$id
+
+sheet_write(
+  data = inventory,
+  ss = inventory_id,
+  sheet = "Sheet1"
 )
