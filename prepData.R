@@ -36,7 +36,7 @@ df <- bind_tesla_data(queries) %>%
   mutate(api_request_date = Sys.time())
 
 # CLEAN DATA ###################################################################
-inventory <- clean_tesla_data(df)
+df.cln <- clean_tesla_data(df)
 
 # EXPORT DATA TO GOOGLE DRIVE ##################################################
 # > Connect to Google ==========================================================
@@ -50,5 +50,22 @@ make_gdrive_folder(gdrive_dir,
 make_gdrive_sheet(
   name = gdrive_sheet,
   path = gdrive_dir,
-  df = inventory
+  df = df.cln
 )
+
+# CLEAN GOOGLE SHEET FILE ######################################################
+inventory <- 
+  read_sheet(ss = as_dribble(gdrive_sheet)) %>% 
+  group_by(vin) %>% 
+  mutate(inventory_start_date = min(api_request_date),
+         inventory_end_date = max(api_request_date)) %>% 
+  slice_max(api_request_date) %>% 
+  ungroup() %>% 
+  mutate(is_current_inventory = if_else(
+    inventory_end_date == max(api_request_date),
+    "Current",
+    "Historical"
+  ))
+
+# ADD CLEAN INVENTORY TO GOOGLE DRIVE ##########################################
+# Append and overwrite inventory df to inventory sheet
