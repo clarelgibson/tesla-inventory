@@ -175,31 +175,56 @@ make_gdrive_folder <- function(name, gcp) {
   }
 }
 
+make_gdrive_cache <- function(name, gcp) {
+  require(googledrive)
+  
+  # Check if folder already exists (0 = FALSE, >0 = TRUE)
+  dir_flg <- nrow(drive_ls(basename(name),"cache"))
+  
+  if (dir_flg == 0) {
+    drive_mkdir(paste0(name,"/cache")) %>% 
+      drive_share_anyone() %>% 
+      drive_share(
+        role = "writer",
+        type = "user",
+        emailAddress = gcp
+      )
+    cat("Folder", name, "created successfully.")
+  } else {
+    cat("Folder", name, "already exists. No need to recreate.")
+  }
+}
+
 # CREATE GOOGLE SHEET ##########################################################
 # Function creates a new sheet for this project in Google Drive. Checks
 # first for presence of sheet with specified name. If exists, does not 
 # create a new sheet
-make_gdrive_sheet <- function(name, path, df) {
+write_gdrive_cache <- function(name, path, df) {
   require(googledrive)
   require(googlesheets4)
   
-  # Check if file already exists (0 = FALSE, >0 = TRUE)
-  sheet_flg <- nrow(drive_ls(path))
+  ss <- gs4_create(
+    name = paste0(name,"-",gsub("\\D+","",Sys.time())),
+    sheets = list(Sheet1 = df)
+  ) %>% 
+  drive_mv(path = as_dribble(path))
+  cat("Cache file created successfully.")
+}
+
+make_gdrive_sheet <- function(name, path) {
+  require(googledrive)
   
-  if (sheet_flg == 0) {
-    ss <- gs4_create(
+  # Check if folder already exists (0 = FALSE, >0 = TRUE)
+  dir_flg <- nrow(drive_ls(basename(path),name))
+  
+  if (dir_flg == 0) {
+    drive_create(
       name = name,
-      sheets = list(Sheet1 = df[integer(), ])
-    ) %>% 
-    sheet_append(df) %>% 
-    drive_mv(path = path, name = name)
-    cat("Spreadsheet", name, "created successfully.")
-  } else {
-    sheet_append(
-      ss = as_dribble(name),
-      data = df,
-      sheet = "Sheet1"
+      path = as_dribble(path),
+      type = "spreadsheet"
     )
-    cat("Spreadsheet", name, "already exists. No need to recreate.")
+    cat("Sheet", name, "created successfully.")
+  } else {
+    cat("Sheet", name, "already exists. No need to recreate.")
   }
 }
