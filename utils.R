@@ -137,7 +137,8 @@ clean_tesla_data <- function(data) {
     mutate(vehicle_birthdate = coalesce(first_registration_date,
                                         original_delivery_date),
            vehicle_age_months = interval(vehicle_birthdate,
-                                         today()) %/% months(1))
+                                         today()) %/% months(1)) %>% 
+    distinct()
 }
 
 # GOOGLE AUTHENTICATION ########################################################
