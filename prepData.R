@@ -115,7 +115,7 @@ writeLines("Google Sheet step complete.")
 
 # > Append data to inventory ===================================================
 writeLines("Writing inventory data to Google Sheet...")
-inventory_id <- drive_ls(gdrive_dir, "inventory")$id
+inventory_id <- drive_get("inventory")$id
 cat("Inventory ID is", inventory_id)
 
 sheet_write(
