@@ -88,11 +88,12 @@ bind_tesla_data <- function(data) {
 clean_tesla_data <- function(data) {
   require(dplyr)
   require(lubridate)
+  require(stringr)
   
   df <- data %>%
     select(api_request_date,
            vin,
-           registration_plate = registration_details_license_plate_number,
+           reg = registration_details_license_plate_number,
            first_registration_date,
            trim_code = trim,
            original_delivery_date,
@@ -104,10 +105,10 @@ clean_tesla_data <- function(data) {
            total_price,
            on_configurator_price_percentage,
            acquisition_type,
-           vehicle_history,
+           history = vehicle_history,
            title_status,
-           city,
-           cpo_refurbishment_status,
+           location = city,
+           refurb = cpo_refurbishment_status,
            has_damage_photos,
            paint,
            interior,
@@ -116,7 +117,7 @@ clean_tesla_data <- function(data) {
            warranty_vehicle_exp_date,
            warranty_drive_unit_exp_date,
            is_at_location,
-           trt_name,
+           delivery_location = trt_name,
            vrl_name
     ) %>% 
     mutate(
@@ -128,12 +129,36 @@ clean_tesla_data <- function(data) {
           warranty_vehicle_exp_date),
         as_date
       )
+    ) %>%
+    mutate(
+      edition = if_else(
+        year >= 2021,
+        "New Edition",
+        "Old Edition"
+      ),
+      trim = case_when(
+        trim_code == "PAWD" ~ "Performance",
+        trim_code == "LRAWD" ~ "Long Range",
+        trim_code == "M3RWD" ~ "Rear-Wheel Drive"
+      ),
+      trim_abbr = case_when(
+        trim_code == "PAWD" ~ "PRF",
+        trim_code == "LRAWD" ~ "LR",
+        trim_code == "M3RWD" ~ "RWD"
+      ),
+      interior = case_when(
+        grepl("BLACK", interior) ~ "Black",
+        grepl("WHITE", interior) ~ "White",
+        TRUE ~ interior
+      ),
+      paint = str_to_title(paint),
+      trim_score = case_when(
+        trim == "Performance" ~ 3,
+        trim == "Long Range" ~ 2,
+        trim == "Rear-Wheel Drive" ~ 1,
+        TRUE ~ 0
+      )
     ) %>% 
-    mutate(trim_name = case_when(
-      trim_code == "PAWD" ~ "Performance",
-      trim_code == "LRAWD" ~ "Long Range",
-      trim_code == "M3RWD" ~ "Rear-Wheel Drive"
-    )) %>% 
     mutate(vehicle_birthdate = coalesce(first_registration_date,
                                         original_delivery_date),
            vehicle_age_months = interval(vehicle_birthdate,
@@ -179,7 +204,8 @@ make_gdrive_cache <- function(name, gcp) {
   require(googledrive)
   
   # Check if folder already exists (0 = FALSE, >0 = TRUE)
-  dir_flg <- nrow(drive_ls(basename(name),"cache"))
+  dir_flg <- nrow(drive_get(paste0(name, "/cache")))
+  cat("dir_flg value returned is", dir_flg)
   
   if (dir_flg == 0) {
     drive_mkdir(paste0(name,"/cache")) %>% 
@@ -199,12 +225,12 @@ make_gdrive_cache <- function(name, gcp) {
 # Function creates a new sheet for this project in Google Drive. Checks
 # first for presence of sheet with specified name. If exists, does not 
 # create a new sheet
-write_gdrive_cache <- function(name, path, df) {
+write_gdrive_cache <- function(name, path, df, timestamp) {
   require(googledrive)
   require(googlesheets4)
   
   ss <- gs4_create(
-    name = paste0(name,"-",gsub("\\D+","",Sys.time())),
+    name = paste0(name,"-",gsub("\\D+","",timestamp)),
     sheets = list(Sheet1 = df)
   ) %>% 
   drive_mv(path = as_dribble(path))
@@ -215,7 +241,7 @@ make_gdrive_sheet <- function(name, path) {
   require(googledrive)
   
   # Check if folder already exists (0 = FALSE, >0 = TRUE)
-  dir_flg <- nrow(drive_ls(basename(path),name))
+  dir_flg <- nrow(drive_get(paste0(path, "/", name)))
   
   if (dir_flg == 0) {
     drive_create(

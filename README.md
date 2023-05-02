@@ -1,5 +1,5 @@
 # Tesla Inventory
-Exploratory analysis of Tesla inventory in the UK.
+Exploratory analysis of Tesla Model 3 inventory in the UK.
 
 ## Description
 
