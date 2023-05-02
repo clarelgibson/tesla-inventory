@@ -199,7 +199,7 @@ make_gdrive_cache <- function(name, gcp) {
   require(googledrive)
   
   # Check if folder already exists (0 = FALSE, >0 = TRUE)
-  dir_flg <- nrow(drive_ls(basename(name),"cache"))
+  dir_flg <- nrow(drive_get(paste0(name, "/cache")))
   cat("dir_flg value returned is", dir_flg)
   
   if (dir_flg == 0) {
