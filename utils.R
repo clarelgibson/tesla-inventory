@@ -141,6 +141,11 @@ clean_tesla_data <- function(data) {
         trim_code == "LRAWD" ~ "Long Range",
         trim_code == "M3RWD" ~ "Rear-Wheel Drive"
       ),
+      trim_abbr = case_when(
+        trim_code == "PAWD" ~ "PRF",
+        trim_code == "LRAWD" ~ "LR",
+        trim_code == "M3RWD" ~ "RWD"
+      ),
       interior = case_when(
         grepl("BLACK", interior) ~ "Black",
         grepl("WHITE", interior) ~ "White",
