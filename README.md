@@ -2,6 +2,7 @@
 Exploratory analysis of Tesla Model 3 inventory in the UK.
 
 ## Description
+This project uses data from the Tesla used car inventory (via an API call) to show the current state of used Model 3 vehicles in the UK inventory.
 
 ## Getting Started
 ### Data
