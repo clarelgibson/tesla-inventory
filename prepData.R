@@ -19,6 +19,7 @@ gdrive_dir <- "tesla-inventory"
 gdrive_cache <- paste0(gdrive_dir,"/cache")
 gdrive_sheet <- "inventory"
 gcp_service_account <- "tpa-service-account@tableau-public-autorefresh.iam.gserviceaccount.com"
+timestamp <- Sys.time()
 
 # GET DATA FROM API ############################################################
 queries <- list(
@@ -34,7 +35,7 @@ queries <- list(
 
 # BIND ALL API CALLS ###########################################################
 df <- bind_tesla_data(queries) %>% 
-  mutate(api_request_date = Sys.time())
+  mutate(api_request_date = timestamp)
 
 # CLEAN DATA ###################################################################
 df.cln <- clean_tesla_data(df)
@@ -55,7 +56,8 @@ make_gdrive_cache(gdrive_dir,
 write_gdrive_cache(
   name = gdrive_sheet,
   path = gdrive_cache,
-  df = df.cln
+  df = df.cln,
+  timestamp = timestamp
 )
 
 # CLEAN INVENTORY ##############################################################
@@ -66,15 +68,19 @@ inventory <-
   lapply(read_sheet) %>% 
   bind_rows() %>% 
   group_by(vin) %>%
-  mutate(inventory_start_date = min(api_request_date),
-         inventory_end_date = max(api_request_date)) %>%
+  mutate(
+    vehicle_first_report_date = min(api_request_date),
+    vehicle_last_report_date = max(api_request_date)
+    ) %>%
   slice_max(api_request_date) %>%
   ungroup() %>%
-  mutate(is_current_inventory = if_else(
-    inventory_end_date == max(api_request_date),
-    "Current",
-    "Historical"
-  ))
+  mutate(
+    is_current_inventory = if_else(
+      vehicle_last_report_date == max(api_request_date),
+      TRUE,
+      FALSE
+      )
+    )
 
 # ADD CLEAN INVENTORY TO GOOGLE DRIVE ##########################################
 # > Make sheet if required =====================================================
