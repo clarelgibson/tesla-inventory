@@ -236,7 +236,7 @@ make_gdrive_sheet <- function(name, path) {
   require(googledrive)
   
   # Check if folder already exists (0 = FALSE, >0 = TRUE)
-  dir_flg <- nrow(drive_ls(basename(path),name))
+  dir_flg <- nrow(drive_get(paste0(path, "/", name)))
   
   if (dir_flg == 0) {
     drive_create(
