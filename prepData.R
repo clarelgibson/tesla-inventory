@@ -84,7 +84,7 @@ writeLines("Cache data writing complete.")
 writeLines("Binding cached inventory data...")
 gdrive_cache_ids <- drive_ls(gdrive_cache)$id
 
-inventory <-
+df.tab <-
   gdrive_cache_ids %>% 
   lapply(read_sheet) %>% 
   bind_rows() %>% 
@@ -116,9 +116,10 @@ writeLines("Google Sheet step complete.")
 # > Append data to inventory ===================================================
 writeLines("Writing inventory data to Google Sheet...")
 inventory_id <- drive_ls(gdrive_dir, "inventory")$id
+cat("Inventory ID is", inventory_id)
 
 sheet_write(
-  data = inventory,
+  data = df.tab,
   ss = inventory_id,
   sheet = "Sheet1"
 )
