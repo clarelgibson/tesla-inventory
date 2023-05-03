@@ -180,46 +180,46 @@ google_auth <- function() {
 # Function creates a new directory for this project in Google Drive. Checks
 # first for presence of directory with specified name. If exists, does not 
 # create a new directory.
-make_gdrive_folder <- function(name, gcp) {
-  require(googledrive)
-  
-  # Check if folder already exists (0 = FALSE, >0 = TRUE)
-  dir_flg <- nrow(drive_find(name))
-  
-  if (dir_flg == 0) {
-    drive_mkdir(name) %>% 
-      drive_share_anyone() %>% 
-      drive_share(
-        role = "writer",
-        type = "user",
-        emailAddress = gcp
-      )
-    cat("Folder", name, "created successfully.")
-  } else {
-    cat("Folder", name, "already exists. No need to recreate.")
-  }
-}
-
-make_gdrive_cache <- function(name, gcp) {
-  require(googledrive)
-  
-  # Check if folder already exists (0 = FALSE, >0 = TRUE)
-  dir_flg <- nrow(drive_get(paste0(name, "/cache")))
-  cat("dir_flg value returned is", dir_flg)
-  
-  if (dir_flg == 0) {
-    drive_mkdir(paste0(name,"/cache")) %>% 
-      drive_share_anyone() %>% 
-      drive_share(
-        role = "writer",
-        type = "user",
-        emailAddress = gcp
-      )
-    cat("Folder", name, "created successfully.")
-  } else {
-    cat("Folder", name, "already exists. No need to recreate.")
-  }
-}
+# make_gdrive_folder <- function(name, gcp) {
+#   require(googledrive)
+#   
+#   # Check if folder already exists (0 = FALSE, >0 = TRUE)
+#   dir_flg <- nrow(drive_find(name))
+#   
+#   if (dir_flg == 0) {
+#     drive_mkdir(name) %>% 
+#       drive_share_anyone() %>% 
+#       drive_share(
+#         role = "writer",
+#         type = "user",
+#         emailAddress = gcp
+#       )
+#     cat("Folder", name, "created successfully.")
+#   } else {
+#     cat("Folder", name, "already exists. No need to recreate.")
+#   }
+# }
+# 
+# make_gdrive_cache <- function(name, gcp) {
+#   require(googledrive)
+#   
+#   # Check if folder already exists (0 = FALSE, >0 = TRUE)
+#   dir_flg <- nrow(drive_get(paste0(name, "/cache")))
+#   cat("dir_flg value returned is", dir_flg)
+#   
+#   if (dir_flg == 0) {
+#     drive_mkdir(paste0(name,"/cache")) %>% 
+#       drive_share_anyone() %>% 
+#       drive_share(
+#         role = "writer",
+#         type = "user",
+#         emailAddress = gcp
+#       )
+#     cat("Folder", name, "created successfully.")
+#   } else {
+#     cat("Folder", name, "already exists. No need to recreate.")
+#   }
+# }
 
 # CREATE GOOGLE SHEET ##########################################################
 # Function creates a new sheet for this project in Google Drive. Checks
@@ -233,24 +233,24 @@ write_gdrive_cache <- function(name, path, df, timestamp) {
     name = paste0(name,"-",gsub("\\D+","",timestamp)),
     sheets = list(Sheet1 = df)
   ) %>% 
-  drive_mv(path = as_dribble(path))
+  drive_mv(path = as_id(path))
   cat("Cache file created successfully.")
 }
 
-make_gdrive_sheet <- function(name, path) {
-  require(googledrive)
-  
-  # Check if folder already exists (0 = FALSE, >0 = TRUE)
-  dir_flg <- nrow(drive_get(paste0(path, "/", name)))
-  
-  if (dir_flg == 0) {
-    drive_create(
-      name = name,
-      path = as_dribble(path),
-      type = "spreadsheet"
-    )
-    cat("Sheet", name, "created successfully.")
-  } else {
-    cat("Sheet", name, "already exists. No need to recreate.")
-  }
-}
+# make_gdrive_sheet <- function(name, path) {
+#   require(googledrive)
+#   
+#   # Check if folder already exists (0 = FALSE, >0 = TRUE)
+#   dir_flg <- nrow(drive_get(paste0(path, "/", name)))
+#   
+#   if (dir_flg == 0) {
+#     drive_create(
+#       name = name,
+#       path = as_dribble(path),
+#       type = "spreadsheet"
+#     )
+#     cat("Sheet", name, "created successfully.")
+#   } else {
+#     cat("Sheet", name, "already exists. No need to recreate.")
+#   }
+# }
